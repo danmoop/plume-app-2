@@ -67,10 +67,14 @@
   }
 
   .roboto-light {
-    padding-top: 6rem;
+    padding-top: 2rem;
     font-size: 5em;
     font-family: Roboto;
     font-weight: 100;
+  }
+
+  .roboto-light-sm{
+    font-family: Roboto;
   }
 
   .light-text {

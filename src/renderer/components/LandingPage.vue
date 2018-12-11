@@ -1,20 +1,20 @@
 <template>
   <div>
- 
     <div class="flex">
       <div class="l-block w-3/4 text-center">
         <p class="roboto-light">Plume 2</p>
+        <v-dialog />
         <div class="btns">
           <div class="px-4 m-10">
             <div class="flex -mx-2">
               <div class="w-1/2 px-2">
-                <button @click="createBlank" class="appBtn bg-white hover:bg-grey-lightest text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded shadow">
+                <button @click="createBlank('blank')" class="shadow-md appBtn bg-white text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded">
                   <i class="fas fa-lg fa-file text-blue"></i>
                   <span class="text-black">Create blank document</span>
                 </button>
               </div>
               <div class="w-1/2 px-2">
-                <button class="appBtn bg-white hover:bg-grey-lightest text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded shadow">
+                <button @click="createBlank('book')" class="shadow-md appBtn bg-white text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded">
                   <i class="fas fa-lg fa-book text-green"></i>
                   <span class="text-black">Create book document</span>
                 </button>
@@ -24,13 +24,13 @@
           <div class="px-4 m-10">
             <div class="flex -mx-2">
               <div class="w-1/2 px-2">
-                <button class="appBtn bg-white hover:bg-grey-lightest text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded shadow">
+                <button @click="createBlank('secure')" class="shadow-md appBtn bg-white text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded">
                   <i class="fas fa-lg fa-lock"></i>
                   <span class="text-black">Create secure document</span>
                 </button>
               </div>
               <div class="w-1/2 px-2">
-                <button class="appBtn bg-white hover:bg-grey-lightest text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded shadow">
+                <button @click="createBlank('science')" class="shadow-md appBtn bg-white text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded">
                   <i class="fas fa-lg fa-atom text-red"></i>
                   <span class="text-black">Create scientific document</span>
                 </button>
@@ -39,15 +39,14 @@
           </div>
         </div>
         <hr class="divider">
-        <button class="m-10 appBtn bg-white hover:bg-grey-lightest text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded shadow">
+        <button class="shadow-md m-10 appBtn bg-white hover:bg-grey-lightest text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded">
           <i class="fas fa-lg fa-file text-indigo"></i>
           <span class="text-black">Open document</span>
         </button>
       </div>
       <div class="r-block w-1/4 text-center">
         <p class="light-text m-5">Recent projects</p>
-        <!-- <editor-page></editor-page> -->
-        <router-link to="/editor">Proceed to editor</router-link>
+        <latest-projects></latest-projects>
       </div>
     </div>
   </div>
@@ -58,12 +57,70 @@
     remote
   } from 'electron';
 
+  const dialog = remote.require('electron').dialog;
+  const fs = require('fs');
+
   import EditorPage from './EditorPage';
+  import LatestProjects from './LatestProjects';
 
   export default {
     name: 'landing-page',
     components: {
-      EditorPage
+      EditorPage,
+      LatestProjects
+    },
+    methods: {
+      createBlank(type) {
+
+        var localRouter = this.$router;
+
+        dialog.showSaveDialog(function (fileName) {
+
+          let splittedPath = fileName.split("\\");
+          let projectName = splittedPath[splittedPath.length - 1];
+
+          let project = {
+            type: type,
+            filename: projectName,
+            actors: [],
+            places: [],
+            notes: [],
+            shortStory: "",
+            lists: [],
+            trash: [],
+            pathFile: fileName
+          };
+
+          fs.writeFile(fileName + ".plume", JSON.stringify(project), function (err) {
+            if (err) dialog.showErrorBox("Error", err);
+
+            else {
+              dialog.showMessageBox({
+                message: "Created successfully to " + fileName + ".plume",
+                buttons: ['OK']
+              }, function (response) {
+                var recent = JSON.parse(localStorage.getItem('recent'));
+                recent.unshift(project);
+                localStorage.setItem('recent', JSON.stringify(recent));
+                localRouter.push({
+                  name: 'EditorPage',
+                  params: {
+                    project: project
+                  }
+                });
+              });
+            }
+          });
+        });
+      }
+    },
+
+    beforeMount() {
+      if (localStorage.getItem('recent') == null) {
+        localStorage.setItem('recent', '[]');
+      }
+
+      console.log("LENGTH: " + localStorage.length);
     }
   }
 </script>
