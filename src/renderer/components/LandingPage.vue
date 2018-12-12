@@ -3,7 +3,6 @@
     <div class="flex">
       <div class="l-block w-3/4 text-center">
         <p class="roboto-light">Plume 2</p>
-        <v-dialog />
         <div class="btns">
           <div class="px-4 m-10">
             <div class="flex -mx-2">
@@ -140,8 +139,6 @@
       if (localStorage.getItem('recent') == null) {
         localStorage.setItem('recent', '[]');
       }
-
-      console.log("LENGTH: " + localStorage.length);
     }
   }
 </script>
