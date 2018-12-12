@@ -39,7 +39,7 @@
           </div>
         </div>
         <hr class="divider">
-        <button class="shadow-md m-10 appBtn bg-white hover:bg-grey-lightest text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded">
+        <button @click="openDocument" class="shadow-md m-10 appBtn bg-white hover:bg-grey-lightest text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded">
           <i class="fas fa-lg fa-file text-indigo"></i>
           <span class="text-black">Open document</span>
         </button>
@@ -91,7 +91,12 @@
             pathFile: fileName
           };
 
-          fs.writeFile(fileName + ".plume", JSON.stringify(project), function (err) {
+          var result;
+
+          if (type == 'secure') result = CryptoJS.AES.encrypt(JSON.stringify(project), "tgdf676765456789");
+          else result = JSON.stringify(project);
+
+          fs.writeFile(fileName + ".plume", result, function (err) {
             if (err) dialog.showErrorBox("Error", err);
 
             else {
@@ -110,6 +115,22 @@
                 });
               });
             }
+          });
+        });
+      },
+      openDocument() {
+        var localRouter = this.$router;
+        var _project;
+
+        dialog.showOpenDialog(function (filename) {
+          fs.readFile(filename[0], function (err, data) {
+            _project = JSON.parse(data);
+            localRouter.push({
+              name: 'EditorPage',
+              params: {
+                project: _project
+              }
+            })
           });
         });
       }

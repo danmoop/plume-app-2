@@ -7,11 +7,9 @@
             <hr class="divider">
         </div>
         <li v-for="proj in projects" style="list-style: none;">
-            <router-link to="/editor">
-                <button class="btn m-2 bg-transparent text-blue-dark font-semibold py-2 px-4 border border-blue hover:border-transparent rounded">
-                    {{ proj.filename }}
-                </button>
-            </router-link>
+            <button @click="openRecentProject(proj)" class="btn m-2 bg-transparent text-blue-dark font-semibold py-2 px-4 border border-blue hover:border-transparent rounded">
+                {{ proj.filename }}
+            </button>
         </li>
         <p v-if="projects.length == 0" class="m-5 font-bold">No recent projects</p>
     </div>
@@ -19,8 +17,8 @@
 
 <script>
     export default {
-        data(){
-            return{
+        data() {
+            return {
                 projects: []
             }
         },
@@ -29,10 +27,18 @@
 
             this.projects = recent;
         },
-        methods:{
-            clearRecentList(){
+        methods: {
+            clearRecentList() {
                 localStorage.setItem('recent', '[]');
                 this.projects = [];
+            },
+            openRecentProject(proj) {
+                this.$router.push({
+                    name: 'EditorPage',
+                    params: {
+                        project: proj
+                    }
+                })
             }
         }
     }
