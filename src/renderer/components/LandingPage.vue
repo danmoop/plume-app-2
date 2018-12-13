@@ -7,13 +7,13 @@
           <div class="px-4 m-10">
             <div class="flex -mx-2">
               <div class="w-1/2 px-2">
-                <button @click="createBlank('blank')" class="shadow-md appBtn bg-white text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded">
+                <button @click="createBlank('blank')" class="q shadow-md appBtn bg-white text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded">
                   <i class="fas fa-lg fa-file text-blue"></i>
                   <span class="text-black">Create blank document</span>
                 </button>
               </div>
               <div class="w-1/2 px-2">
-                <button @click="createBlank('book')" class="shadow-md appBtn bg-white text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded">
+                <button @click="createBlank('book')" class="q shadow-md appBtn bg-white text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded">
                   <i class="fas fa-lg fa-book text-green"></i>
                   <span class="text-black">Create book document</span>
                 </button>
@@ -23,13 +23,13 @@
           <div class="px-4 m-10">
             <div class="flex -mx-2">
               <div class="w-1/2 px-2">
-                <button @click="createBlank('secure')" class="shadow-md appBtn bg-white text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded">
+                <button @click="createBlank('secure')" class="q shadow-md appBtn bg-white text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded">
                   <i class="fas fa-lg fa-lock"></i>
                   <span class="text-black">Create secure document</span>
                 </button>
               </div>
               <div class="w-1/2 px-2">
-                <button @click="createBlank('science')" class="shadow-md appBtn bg-white text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded">
+                <button @click="createBlank('science')" class="q shadow-md appBtn bg-white text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded">
                   <i class="fas fa-lg fa-atom text-red"></i>
                   <span class="text-black">Create scientific document</span>
                 </button>
@@ -38,13 +38,13 @@
           </div>
         </div>
         <hr class="divider">
-        <button @click="openDocument" class="shadow-md m-10 appBtn bg-white hover:bg-grey-lightest text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded">
+        <button @click="openDocument" class="q shadow-md m-10 appBtn bg-white hover:bg-grey-lightest text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded">
           <i class="fas fa-lg fa-file text-indigo"></i>
           <span class="text-black">Open document</span>
         </button>
       </div>
       <div class="r-block w-1/4 text-center">
-        <p class="light-text m-5">Recent projects</p>
+        <h2 class="q m-5">Recent documents</h2>
         <latest-projects></latest-projects>
       </div>
     </div>
@@ -92,8 +92,7 @@
 
           var result;
 
-          if (type == 'secure') result = CryptoJS.AES.encrypt(JSON.stringify(project), "tgdf676765456789");
-          else result = JSON.stringify(project);
+          result = JSON.stringify(project, null, "\t");
 
           fs.writeFile(fileName + ".plume", result, function (err) {
             if (err) dialog.showErrorBox("Error", err);

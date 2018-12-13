@@ -1,34 +1,51 @@
 <template>
   <div id="app">
-       <ul class="list-reset flex-row-reverse flex appNav">
+
+    <ul class="list-reset flex justify-between appNav">
       <li class="mr-3">
-        <button @click="closeWindow" class="navBtn bg-grey-light text-grey-darkest font-bold py-2 px-4 rounded inline-flex items-center">
-          <i class="fas fa-times"></i>
-        </button>
-      </li>
-      <li class="mr-3">
-        <button @click="maximizeWindow" class="navBtn bg-grey-light text-grey-darkest font-bold py-2 px-4 rounded inline-flex items-center">
-          <i class="fas fa-window-maximize"></i>
+        <!--<button class="q navBtn bg-white hover:bg-grey-lightest text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded shadow">
+          File
+        </button><button class="q navBtn bg-white hover:bg-grey-lightest text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded shadow">
+          View
+        </button><button class="q navBtn bg-white hover:bg-grey-lightest text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded shadow">
+          Project
+        </button><button class="q navBtn bg-white hover:bg-grey-lightest text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded shadow">
+          Help  
+        </button> -->
+        <button class="text-grey-darkest font-bold py-2 px-4 rounded inline-flex items-center">
+          {{activeDocumentName}}
         </button>
       </li>
       <li class="mr-3">
         <button @click="minimizeWindow" class="navBtn bg-grey-light text-grey-darkest font-bold py-2 px-4 rounded inline-flex items-center">
           <i class="fas fa-window-minimize"></i>
         </button>
+        <button @click="maximizeWindow" class="navBtn bg-grey-light text-grey-darkest font-bold py-2 px-4 rounded inline-flex items-center">
+          <i class="fas fa-window-maximize"></i>
+        </button>
+        <button @click="closeWindow" class="navBtn bg-grey-light text-grey-darkest font-bold py-2 px-4 rounded inline-flex items-center">
+          <i class="fas fa-times"></i>
+        </button>
       </li>
     </ul>
     <transition enter-active-class="animated fadeIn">
-      <router-view/>
+      <router-view />
     </transition>
   </div>
 </template>
 
 <script>
-
-  import {remote} from 'electron';
+  import {
+    remote
+  } from 'electron';
 
   export default {
     name: 'plume2',
+    data() {
+      return {
+        activeDocumentName: null
+      }
+    },
     methods: {
       minimizeWindow() {
         remote.getCurrentWindow().minimize();
@@ -42,6 +59,14 @@
       createBlank() {
         alert(EditorPage);
       }
+    },
+    mounted() {
+      this.$root.$on('setDocName', (name) => {
+        this.activeDocumentName = name;
+      });
+      this.$root.$on('unsetDocName', () => {
+        this.activeDocumentName = null;
+      });
     }
   }
 </script>
@@ -52,6 +77,7 @@
   @import url('https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css');
   @import url('https://fonts.googleapis.com/css?family=Roboto:100|Roboto');
   @import url('https://use.fontawesome.com/releases/v5.5.0/css/all.css');
+  @import url('https://fonts.googleapis.com/css?family=Quicksand:500,700');
 
   body {
     overflow-y: hidden;
@@ -73,7 +99,7 @@
     font-weight: 100;
   }
 
-  .roboto-light-sm{
+  .roboto-light-sm {
     font-family: Roboto;
   }
 
@@ -123,5 +149,10 @@
 
   *:focus {
     outline: 0 !important;
+  }
+
+  .q {
+    font-family: Quicksand;
+    font-weight: 700;
   }
 </style>
