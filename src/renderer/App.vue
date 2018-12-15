@@ -3,17 +3,16 @@
 
     <ul class="list-reset flex justify-between appNav">
       <li class="mr-3">
-        <!--<button class="q navBtn bg-white hover:bg-grey-lightest text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded shadow">
-          File
-        </button><button class="q navBtn bg-white hover:bg-grey-lightest text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded shadow">
-          View
-        </button><button class="q navBtn bg-white hover:bg-grey-lightest text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded shadow">
-          Project
-        </button><button class="q navBtn bg-white hover:bg-grey-lightest text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded shadow">
-          Help  
-        </button> -->
-        <button class="text-grey-darkest font-bold py-2 px-4 rounded inline-flex items-center">
+        <button v-if="editActive" class="text-grey-darkest font-bold py-2 px-4 rounded inline-flex items-center">
           {{activeDocumentName}}
+        </button>
+      </li>
+      <li class="mr-3">
+        <button v-if="editActive" class="text-grey-darkest font-bold py-2 px-4 rounded inline-flex items-center">
+          Words: {{wordsAmount}}
+        </button>
+        <button v-if="editActive" class="text-grey-darkest font-bold py-2 px-4 rounded inline-flex items-center">
+          Characters: {{symbolsAmount}}
         </button>
       </li>
       <li class="mr-3">
@@ -43,7 +42,10 @@
     name: 'plume2',
     data() {
       return {
-        activeDocumentName: null
+        activeDocumentName: null,
+        wordsAmount: 0,
+        symbolsAmount: 0,
+        editActive: false
       }
     },
     methods: {
@@ -63,9 +65,16 @@
     mounted() {
       this.$root.$on('setDocName', (name) => {
         this.activeDocumentName = name;
+        this.editActive = true;
       });
       this.$root.$on('unsetDocName', () => {
-        this.activeDocumentName = null;
+        this.editActive = false;
+        this.symbolsAmount = 0;
+        this.wordsAmount = 0;
+      });
+      this.$root.$on('setNums', (symNum, wordNum) => {
+        this.symbolsAmount = symNum;
+        this.wordsAmount = wordNum;
       });
     }
   }
@@ -78,10 +87,6 @@
   @import url('https://fonts.googleapis.com/css?family=Roboto:100|Roboto');
   @import url('https://use.fontawesome.com/releases/v5.5.0/css/all.css');
   @import url('https://fonts.googleapis.com/css?family=Quicksand:500,700');
-
-  body {
-    overflow-y: hidden;
-  }
 
   .r-block {
     background: #f5f5f5;
@@ -145,6 +150,10 @@
   .divider {
     background: #eeeded;
     padding: 1px;
+  }
+
+  *{
+    user-select: none !important;
   }
 
   *:focus {

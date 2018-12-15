@@ -17,7 +17,7 @@
     "postinstall": ""
   },
   "build": {
-    "productName": "Plume 2",
+    "productName": "plume2",
     "appId": "com.danmoop.plume2",
     "directories": {
       "output": "build"
