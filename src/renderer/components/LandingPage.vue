@@ -87,7 +87,7 @@
             shortStory: "",
             lists: [],
             trash: [],
-            pathFile: fileName
+            pathFile: fileName + ".plume"
           };
 
           var result;

@@ -3,14 +3,11 @@
         <div class="flex mb-4">
             <div class="w-1/6 sidebar h-12 h-screen" style="overflow-y: scroll;">
                 <div class="mt-5 h-screen">
-                    <button @click="goBack" class="text-center bg-white hover:bg-grey-lightest text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded shadow">
-                        <i class="fas fa-arrow-left"></i>
-                    </button>
                     <ul class="list-reset">
                         <a class="q list-title"><i class="fas fa-file-invoice"></i> Lists</a>
-                        <button @click="addList" class="navBtn bg-white text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded shadow">
+                        <a href="#" style="color: #111;" @click="addList" class="navBtn font-semibold">
                             <i class="fas fa-plus"></i>
-                        </button>
+                        </a>
                         <li v-for="list in project.lists" class="q list-item">
                             <a href="#" @click="openList(list)" class="item"><i class="far fa-file"></i>
                                 {{list.title}}</a>
@@ -22,7 +19,8 @@
                         <li v-for="list in project.trash" class="q list-item">
                             <a @click="previewTrash(list)" href="#" class="trash-item"><i class="far fa-file"></i>
                                 {{list.title}}</a>
-                                <a href="#" @click="deleteFromTrash(list)"><i class="far fa-times-circle"></i></a>
+                            <a href="#" style="color: #e74c3c;" @click="deleteFromTrash(list)"><i class="far fa-times-circle"></i></a>
+                            <a href="#" style="color: #16a085;" @click="recover(list)"><i class="fas fa-undo"></i></a>
                         </li>
                     </ul>
 
@@ -34,11 +32,13 @@
                 </div>
             </div>
             <div class="w-5/6 h-12 h-screen" style="overflow-y: scroll;">
-                <ul v-if="editorShown && !trashShown" class="list-reset flex justify-between" style="border: 2px solid #ecf0f1;">
+                <ul v-if="editorShown" class="list-reset flex justify-between" style="border: 2px solid #ecf0f1;">
                     <li class="mr-3">
-                        <input @change="onNameChange($event)" class="border border-grey-light q ml-5" placeholder="Username"
-                            :value="this.currentList.title">
-                        <button @click="deleteList" class="navBtn bg-grey-light text-grey-darkest font-bold py-2 px-4 rounded inline-flex items-center">
+                        <input @change="onNameChange($event)" v-if="!trashShown" class="border border-grey-light q ml-5"
+                            placeholder="Username" :value="this.currentList.title">
+                        <input @change="onNameChange($event)" v-if="trashShown" :disabled="trashShown" class="border border-grey-light q ml-5"
+                            placeholder="Username" :value="this.currentList.title + ' (In trash)'">
+                        <button @click="deleteList" v-if="!trashShown" class="navBtn bg-grey-light text-grey-darkest font-bold py-2 px-4 rounded inline-flex items-center">
                             <i class="fas fa-trash-alt"></i>
                         </button>
                     </li>
@@ -92,7 +92,8 @@
                 currentList: null,
                 fs: null,
                 trashShown: false,
-                disabled: false
+                disabled: false,
+                quill: null
             }
         },
         mounted() {
@@ -102,23 +103,22 @@
         },
         beforeMount() {
             this.project = this.$route.params.project;
+            remote.getCurrentWindow().maximize();
         },
         methods: {
-            goBack() {
-                this.$router.push('landing-page');
-                this.$root.$emit('unsetDocName');
-            },
             openList(list) {
                 this.editorShown = true;
                 this.content = list.content;
                 this.currentList = list;
                 this.trashShown = false;
                 this.disabled = false;
+
+                this.refreshWords();
             },
             onEditorReady(quill) {
-                var symNum = quill.container.innerText.length;
-                var wordNum = quill.container.innerText.trim().split(/\s+/).length;
-                this.$root.$emit('setNums', symNum, wordNum);
+                this.quill = quill;
+
+                this.refreshWords();
             },
             onEditorChange(event) {
                 this.content = event.html;
@@ -126,9 +126,7 @@
 
                 this.fs.writeFile(this.project.pathFile, JSON.stringify(this.project, null, "\t"), function (err) {});
 
-                var symNum = event.text.length;
-                var wordNum = event.text.split(" ").length;
-                this.$root.$emit('setNums', symNum, wordNum);
+                this.refreshWords();
             },
             addList() {
                 var list = {
@@ -159,23 +157,44 @@
                 this.editorShown = false;
 
                 this.fs.writeFile(this.project.pathFile, JSON.stringify(this.project, null, "\t"), function (err) {});
+
+                this.setWords(0, 0);
             },
             onNameChange(event) {
                 var index = this.project.lists.indexOf(this.currentList);
                 this.project.lists[index].title = event.target.value;
                 this.fs.writeFile(this.project.pathFile, JSON.stringify(this.project, null, "\t"), function (err) {});
             },
-            deleteFromTrash(list) { 
+            deleteFromTrash(list) {
                 var index = this.project.trash.indexOf(list);
                 this.project.trash.splice(index, 1);
                 this.fs.writeFile(this.project.pathFile, JSON.stringify(this.project, null, "\t"), function (err) {});
+                this.editorShown = false;
+
+                this.setWords(0, 0);
             },
-            previewTrash(list) { 
+            previewTrash(list) {
                 this.editorShown = true;
                 this.content = list.content;
                 this.currentList = list;
                 this.trashShown = true;
                 this.disabled = true;
+                this.refreshWords();
+            },
+            recover(list) {
+                var index = this.project.trash.indexOf(list);
+                this.project.trash.splice(index, 1);
+                this.project.lists.push(list);
+                this.fs.writeFile(this.project.pathFile, JSON.stringify(this.project, null, "\t"), function (err) {});
+                this.editorShown = false;
+            },
+            refreshWords() {
+                var symNum = this.quill.container.innerText.length - 1;
+                var wordNum = this.quill.container.innerText.trim().split(/\s+/).length;
+                this.$root.$emit('setNums', symNum, wordNum);
+            },
+            setWords(symNum, wordNum) {
+                this.$root.$emit('setNums', symNum, wordNum);
             }
         }
     }

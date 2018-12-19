@@ -3,6 +3,9 @@
 
     <ul class="list-reset flex justify-between appNav">
       <li class="mr-3">
+        <button @click="goBack" v-if="editActive" class="navBtn text-center bg-white hover:bg-grey-lightest text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded shadow">
+          <i class="fas fa-arrow-left"></i>
+        </button>
         <button v-if="editActive" class="text-grey-darkest font-bold py-2 px-4 rounded inline-flex items-center">
           {{activeDocumentName}}
         </button>
@@ -60,17 +63,18 @@
       },
       createBlank() {
         alert(EditorPage);
+      },
+      goBack() {
+        this.$router.push('landing-page');
+        this.editActive = false;
+        this.symbolsAmount = 0;
+        this.wordsAmount = 0;
       }
     },
     mounted() {
       this.$root.$on('setDocName', (name) => {
         this.activeDocumentName = name;
         this.editActive = true;
-      });
-      this.$root.$on('unsetDocName', () => {
-        this.editActive = false;
-        this.symbolsAmount = 0;
-        this.wordsAmount = 0;
       });
       this.$root.$on('setNums', (symNum, wordNum) => {
         this.symbolsAmount = symNum;
@@ -152,7 +156,7 @@
     padding: 1px;
   }
 
-  *{
+  * {
     user-select: none !important;
   }
 
