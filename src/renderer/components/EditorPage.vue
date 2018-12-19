@@ -2,14 +2,37 @@
     <div>
         <div class="flex mb-4">
             <div class="w-1/6 sidebar h-12 h-screen" style="overflow-y: scroll;">
-                <div class="mt-5 h-screen">
+                <div class="mt-10 h-screen">
                     <ul class="list-reset">
+                        <!-- <a href="#" @click="getInfo">Get info</a> -->
                         <a class="q list-title"><i class="fas fa-file-invoice"></i> Lists</a>
                         <a href="#" style="color: #111;" @click="addList" class="navBtn font-semibold">
                             <i class="fas fa-plus"></i>
                         </a>
                         <li v-for="list in project.lists" class="q list-item">
                             <a href="#" @click="openList(list)" class="item"><i class="far fa-file"></i>
+                                {{list.title}}</a>
+                        </li>
+                    </ul>
+                    <hr>
+                    <ul class="list-reset under-item" v-if="this.project.type == 'book'">
+                        <a class="q list-title"><i class="fas fa-users"></i> Actors</a>
+                        <a href="#" style="color: #111;" @click="addActor" class="navBtn font-semibold">
+                            <i class="fas fa-plus"></i>
+                        </a>
+                        <li v-for="list in project.actors" class="q list-item">
+                            <a @click="openList(list)" href="#" class="actor-item"><i class="far fa-user-circle"></i>
+                                {{list.title}}</a>
+                        </li>
+                    </ul>
+                    <hr>
+                    <ul class="list-reset under-item" v-if="this.project.type == 'book'">
+                        <a class="q list-title"><i class="fas fa-globe-americas"></i> Places</a>
+                        <a href="#" style="color: #111;" @click="addPlace" class="navBtn font-semibold">
+                            <i class="fas fa-plus"></i>
+                        </a>
+                        <li v-for="list in project.places" class="q list-item">
+                            <a @click="openList(list)" href="#" class="place-item"><i class="fas fa-map-marker-alt"></i>
                                 {{list.title}}</a>
                         </li>
                     </ul>
@@ -103,7 +126,7 @@
         },
         beforeMount() {
             this.project = this.$route.params.project;
-            remote.getCurrentWindow().maximize();
+            //remote.getCurrentWindow().maximize();
         },
         methods: {
             openList(list) {
@@ -139,6 +162,28 @@
 
                 this.fs.writeFile(this.project.pathFile, JSON.stringify(this.project, null, "\t"), function (err) {});
             },
+            addActor() {
+                var list = {
+                    title: "Unnamed",
+                    content: '',
+                    id: "actor_" + this.makeid()
+                }
+
+                this.project.actors.push(list);
+
+                this.fs.writeFile(this.project.pathFile, JSON.stringify(this.project, null, "\t"), function (err) {});
+            },
+            addPlace() {
+                var list = {
+                    title: "Uncharted",
+                    content: '',
+                    id: "place_" + this.makeid()
+                }
+
+                this.project.places.push(list);
+
+                this.fs.writeFile(this.project.pathFile, JSON.stringify(this.project, null, "\t"), function (err) {});
+            },
             makeid() {
                 var text = '';
                 var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -150,8 +195,24 @@
             },
             deleteList() {
                 this.project.trash.push(this.currentList);
+
                 var index = this.project.lists.indexOf(this.currentList);
-                this.project.lists.splice(index, 1);
+                
+                if(this.currentList.id.split("_")[0] == 'list')
+                {
+                    var index = this.project.lists.indexOf(this.currentList);
+                    this.project.lists.splice(index, 1);
+                }
+                else if(this.currentList.id.split("_")[0] == 'actor')
+                {
+                    var index = this.project.actors.indexOf(this.currentList);
+                    this.project.actors.splice(index, 1);
+                }
+                else if(this.currentList.id.split("_")[0] == 'place')
+                {
+                    var index = this.project.places.indexOf(this.currentList);
+                    this.project.places.splice(index, 1);
+                }
 
                 this.currentList = null;
                 this.editorShown = false;
@@ -161,8 +222,23 @@
                 this.setWords(0, 0);
             },
             onNameChange(event) {
-                var index = this.project.lists.indexOf(this.currentList);
-                this.project.lists[index].title = event.target.value;
+
+                if(this.currentList.id.split("_")[0] == 'list')
+                {
+                    var index = this.project.lists.indexOf(this.currentList);
+                    this.project.lists[index].title = event.target.value;
+                }
+                else if(this.currentList.id.split("_")[0] == 'actor')
+                {
+                    var index = this.project.actors.indexOf(this.currentList);
+                    this.project.actors[index].title = event.target.value;
+                }
+                else if(this.currentList.id.split("_")[0] == 'place')
+                {
+                    var index = this.project.places.indexOf(this.currentList);
+                    this.project.places[index].title = event.target.value;
+                }
+
                 this.fs.writeFile(this.project.pathFile, JSON.stringify(this.project, null, "\t"), function (err) {});
             },
             deleteFromTrash(list) {
@@ -184,7 +260,14 @@
             recover(list) {
                 var index = this.project.trash.indexOf(list);
                 this.project.trash.splice(index, 1);
-                this.project.lists.push(list);
+
+                if (list.id.split("_")[0] == 'list')
+                    this.project.lists.push(list);
+                else if(list.id.split("_")[0] == 'actor')
+                    this.project.actors.push(list);
+                else if(list.id.split("_")[0] == 'place')
+                    this.project.places.push(list);
+
                 this.fs.writeFile(this.project.pathFile, JSON.stringify(this.project, null, "\t"), function (err) {});
                 this.editorShown = false;
             },
@@ -195,6 +278,9 @@
             },
             setWords(symNum, wordNum) {
                 this.$root.$emit('setNums', symNum, wordNum);
+            },
+            getInfo() {
+                console.log(this.project);
             }
         }
     }
@@ -225,6 +311,29 @@
         transition: 0.25s;
         text-decoration: none;
         color: #333;
+    }
+
+    .place-item {
+        transition: 0.25s;
+        text-decoration: none;
+        color: #333;
+    }
+
+    .place-item:hover {
+        transition: 0.25s;
+        text-decoration: none;
+        color: #8c7ae6;
+    }
+
+    .actor-item {
+        transition: 0.25s;
+        text-decoration: none;
+        color: #333;
+    }
+
+    .actor-item:hover {
+        transition: 0.25s;
+        color: #27ae60;
     }
 
     .trash-item {
