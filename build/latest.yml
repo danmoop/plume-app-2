@@ -1,0 +1,9 @@
+version: 0.1.0
+files:
+  - url: plume2-setup-0.1.0.exe
+    sha512: 79Bq/bWNr0pqIlPdcLF0elejanQt70GeDM/NLRL9E+kTfHokYAEUW7dUDwf48NO9DnaIJalR2sb6qGcrUn4HcQ==
+    size: 66580613
+path: plume2-setup-0.1.0.exe
+sha512: 79Bq/bWNr0pqIlPdcLF0elejanQt70GeDM/NLRL9E+kTfHokYAEUW7dUDwf48NO9DnaIJalR2sb6qGcrUn4HcQ==
+sha2: d3c7a54c80a2341ba4b007ce7b43f3ffb06c6e6479cfe2538a58630101814ce8
+releaseDate: '2018-12-19T19:11:43.200Z'

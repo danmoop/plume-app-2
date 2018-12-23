@@ -1,6 +1,5 @@
 <template>
   <div id="app">
-
     <ul class="list-reset flex justify-between appNav">
       <li class="mr-3">
         <button @click="goBack" v-if="editActive" class="navBtn text-center bg-white hover:bg-grey-lightest text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded shadow">
