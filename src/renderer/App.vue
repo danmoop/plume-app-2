@@ -6,6 +6,7 @@
           <i class="fas fa-arrow-left"></i>
         </button>
         <button v-if="editActive" class="text-grey-darkest font-bold py-2 px-4 rounded inline-flex items-center">
+          <i class="fas fa-lock" v-if="isSecure"></i>
           {{activeDocumentName}}
         </button>
       </li>
@@ -47,7 +48,8 @@
         activeDocumentName: null,
         wordsAmount: 0,
         symbolsAmount: 0,
-        editActive: false
+        editActive: false,
+        isSecure: false
       }
     },
     methods: {
@@ -78,6 +80,9 @@
       this.$root.$on('setNums', (symNum, wordNum) => {
         this.symbolsAmount = symNum;
         this.wordsAmount = wordNum;
+      });
+      this.$root.$on('setSecure', (bool) => {
+        this.isSecure = bool;
       });
     }
   }

@@ -20,28 +20,50 @@
               </div>
             </div>
           </div>
+
+          <!-- Those functions will be implemented later -->
+
           <div class="px-4 m-10">
             <div class="flex -mx-2">
-              <div class="w-1/2 px-2">
-                <button @click="createBlank('secure')" class="q shadow-md appBtn bg-white text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded">
-                  <i class="fas fa-lg fa-lock"></i>
-                  <span class="text-black">Create secure document</span>
-                </button>
+              <div class="px-2" style="width: 100%;">
+                <div style="width: 50%; margin: 0px auto;">
+                  <div class="flex items-center border-b border-b-2 border-teal py-2">
+                    <input v-model="securePass" class="appearance-none bg-transparent border-none text-grey-darker mr-3 py-1 px-2 leading-tight focus:outline-none"
+                      type="password" placeholder="Secure Password">
+                    <button @click="createBlank('secure')" class="q shadow-md appBtn bg-white text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded">
+                      <i class="fas fa-lg fa-lock"></i>
+                      <span class="text-black">Create secure document</span>
+                    </button>
+                  </div>
+                </div>
               </div>
-              <div class="w-1/2 px-2">
+              <!--<div class="w-1/2 px-2">
                 <button @click="createBlank('science')" class="q shadow-md appBtn bg-white text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded">
                   <i class="fas fa-lg fa-atom text-red"></i>
                   <span class="text-black">Create scientific document</span>
+                </button>
+              </div> -->
+            </div>
+          </div>
+        </div>
+
+        <hr class="divider">
+
+        <div class="px-4 m-10">
+          <div class="px-2" style="width: 100%;">
+            <div style="width: 50%; margin: 0px auto;">
+              <div class="flex items-center border-b border-b-2 border-teal py-2">
+                <input v-model="securePass2" class="appearance-none bg-transparent border-none text-grey-darker mr-3 py-1 px-2 leading-tight focus:outline-none"
+                  type="password" placeholder="Secure Password">
+                <button @click="openDocument" class="q shadow-md appBtn bg-white text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded">
+                  <i class="fas fa-lg fa-file text-indigo"></i>
+                  <span class="text-black">Open document</span>
                 </button>
               </div>
             </div>
           </div>
         </div>
-        <hr class="divider">
-        <button @click="openDocument" class="q shadow-md m-10 appBtn bg-white hover:bg-grey-lightest text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded">
-          <i class="fas fa-lg fa-file text-indigo"></i>
-          <span class="text-black">Open document</span>
-        </button>
+
       </div>
       <div class="r-block w-1/4 text-center">
         <h2 class="q m-5">Recent documents</h2>
@@ -61,6 +83,7 @@
 
   import EditorPage from './EditorPage';
   import LatestProjects from './LatestProjects';
+  import CryptoJS from 'crypto-js';
 
   export default {
     name: 'landing-page',
@@ -68,8 +91,17 @@
       EditorPage,
       LatestProjects
     },
+    data() {
+      return {
+        securePass: '',
+        securePass2: '',
+        secureError: false
+      }
+    },
     methods: {
       createBlank(type) {
+
+        var pass = this.securePass;
 
         var localRouter = this.$router;
 
@@ -87,30 +119,47 @@
             shortStory: "",
             lists: [],
             trash: [],
-            pathFile: fileName + ".plume"
+            pathFile: fileName + ".plume2",
+            secret: null
           };
 
           var result;
 
           result = JSON.stringify(project, null, "\t");
 
-          fs.writeFile(fileName + ".plume", result, function (err) {
+          if (type == 'secure') {
+            if (pass != '') {
+              this.secureError = false;
+              project.secret = pass;
+              result = CryptoJS.AES.encrypt(result, pass);
+            } else {
+              this.secureError = true;
+              dialog.showMessageBox({
+                message: "Your file should have a secure password",
+                buttons: ['OK']
+              });
+            }
+          }
+
+          fs.writeFile(fileName + ".plume2", result, function (err) {
             if (err) dialog.showErrorBox("Error", err);
 
-            else {
+            else if (!this.secureError) {
               dialog.showMessageBox({
-                message: "Created successfully to " + fileName + ".plume",
+                message: "Created successfully to " + fileName + ".plume2",
                 buttons: ['OK']
               }, function (response) {
                 var recent = JSON.parse(localStorage.getItem('recent'));
                 recent.unshift(project);
                 localStorage.setItem('recent', JSON.stringify(recent));
-                localRouter.push({
-                  name: 'EditorPage',
-                  params: {
-                    project: project
-                  }
-                });
+                if (!this.secureError) {
+                  localRouter.push({
+                    name: 'EditorPage',
+                    params: {
+                      project: project
+                    }
+                  });
+                }
               });
             }
           });
@@ -119,16 +168,34 @@
       openDocument() {
         var localRouter = this.$router;
         var _project;
+        var pass = this.securePass2;
 
         dialog.showOpenDialog(function (filename) {
           fs.readFile(filename[0], function (err, data) {
-            _project = JSON.parse(data);
-            localRouter.push({
-              name: 'EditorPage',
-              params: {
-                project: _project
+            try {
+              _project = JSON.parse(data);
+              localRouter.push({
+                name: 'EditorPage',
+                params: {
+                  project: _project
+                }
+              })
+            } catch (e) {
+              try {
+                _project = JSON.parse(CryptoJS.AES.decrypt(data.toString(), pass).toString(CryptoJS.enc.Utf8));
+                localRouter.push({
+                  name: 'EditorPage',
+                  params: {
+                    project: _project
+                  }
+                })
+              } catch (e) {
+                dialog.showMessageBox({
+                  message: "Failed to open. Password is invalid",
+                  buttons: ['OK']
+                });
               }
-            })
+            }
           });
         });
       }
@@ -143,7 +210,7 @@
 </script>
 
 <style>
-  body{
+  body {
     overflow-y: hidden;
   }
 </style>

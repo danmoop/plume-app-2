@@ -1,10 +1,10 @@
 <template>
     <div>
         <div class="flex mb-4">
-            <div class="w-1/6 sidebar h-12 h-screen" style="overflow-y: scroll;">
-                <div class="mt-10 h-screen">
+            <div class="w-1/6 sidebar" style="overflow-y: scroll;">
+                <div class="mt-10">
                     <ul class="list-reset">
-                        <!-- <a href="#" @click="getInfo">Get info</a> -->
+                        <a href="#" @click="getInfo">Get info</a>
                         <a class="q list-title"><i class="fas fa-file-invoice"></i> Lists</a>
                         <a href="#" style="color: #111;" @click="addList" class="navBtn font-semibold">
                             <i class="fas fa-plus"></i>
@@ -60,7 +60,7 @@
                     <br>
                 </div>
             </div>
-            <div class="w-5/6 h-12 h-screen" style="overflow-y: scroll;">
+            <div class="w-5/6" style="height: 95vh; overflow-y: scroll;">
                 <ul v-if="editorShown" class="list-reset flex justify-between" style="border: 2px solid #ecf0f1;">
                     <li class="mr-3">
                         <input @change="onNameChange($event)" v-if="!trashShown" class="border border-grey-light q ml-5"
@@ -81,7 +81,7 @@
                     like there is nothing here yet. Get started by creating / opening blank file on the left sidebar!</h2>
 
                 <quill-editor :disabled="disabled" v-if="editorShown" @ready="onEditorReady" :content="content"
-                    :options="editorOption" @change="onEditorChange($event)">
+                    :options="editorOptions" @change="onEditorChange($event)">
                 </quill-editor>
 
                 <br><br>
@@ -103,7 +103,7 @@
     } from 'vue-quill-editor'
 
     import App from './../App';
-
+    import CryptoJS from 'crypto-js';
     import draggable from 'vuedraggable';
 
     export default {
@@ -117,7 +117,7 @@
             return {
                 content: '<p>example content</p>',
                 project: [],
-                editorOption: {},
+                editorOptions: {},
                 filename: null,
                 editorShown: false,
                 wordAmount: null,
@@ -132,10 +132,14 @@
             this.filename = this.project.filename;
             this.$root.$emit('setDocName', this.filename);
             this.fs = require('fs');
+
+            if(this.project.type == 'secure') 
+                this.$root.$emit('setSecure', true);
+            else
+                this.$root.$emit('setSecure', false);
         },
         beforeMount() {
             this.project = this.$route.params.project;
-            //remote.getCurrentWindow().maximize();
         },
         methods: {
             openList(list) {
@@ -156,7 +160,7 @@
                 this.content = event.html;
                 this.currentList.content = this.content;
 
-                this.fs.writeFile(this.project.pathFile, JSON.stringify(this.project, null, "\t"), function (err) {});
+                this.save();
 
                 this.refreshWords();
             },
@@ -169,7 +173,7 @@
 
                 this.project.lists.push(list);
 
-                this.fs.writeFile(this.project.pathFile, JSON.stringify(this.project, null, "\t"), function (err) {});
+                this.save();
             },
             addActor() {
                 var list = {
@@ -180,7 +184,7 @@
 
                 this.project.actors.push(list);
 
-                this.fs.writeFile(this.project.pathFile, JSON.stringify(this.project, null, "\t"), function (err) {});
+                this.save();
             },
             addPlace() {
                 var list = {
@@ -191,7 +195,7 @@
 
                 this.project.places.push(list);
 
-                this.fs.writeFile(this.project.pathFile, JSON.stringify(this.project, null, "\t"), function (err) {});
+                this.save();
             },
             makeid() {
                 var text = '';
@@ -221,7 +225,7 @@
                 this.currentList = null;
                 this.editorShown = false;
 
-                this.fs.writeFile(this.project.pathFile, JSON.stringify(this.project, null, "\t"), function (err) {});
+                this.save();
 
                 this.setWords(0, 0);
             },
@@ -238,12 +242,12 @@
                     this.project.places[index].title = event.target.value;
                 }
 
-                this.fs.writeFile(this.project.pathFile, JSON.stringify(this.project, null, "\t"), function (err) {});
+                this.save();
             },
             deleteFromTrash(list) {
                 var index = this.project.trash.indexOf(list);
                 this.project.trash.splice(index, 1);
-                this.fs.writeFile(this.project.pathFile, JSON.stringify(this.project, null, "\t"), function (err) {});
+                this.save();
                 this.editorShown = false;
 
                 this.setWords(0, 0);
@@ -267,7 +271,7 @@
                 else if (list.id.split("_")[0] == 'place')
                     this.project.places.push(list);
 
-                this.fs.writeFile(this.project.pathFile, JSON.stringify(this.project, null, "\t"), function (err) {});
+                this.save();
                 this.editorShown = false;
 
                 this.setWords(0, 0);
@@ -281,10 +285,21 @@
                 this.$root.$emit('setNums', symNum, wordNum);
             },
             getInfo() {
-                console.log(this.project);
+                console.log('CryptoJS');
             },
             onDragUpdate() {
-                this.fs.writeFile(this.project.pathFile, JSON.stringify(this.project, null, "\t"), function (err) {});
+                this.save();
+            },
+
+            save() {
+
+                var result = JSON.stringify(this.project, null, "\t");
+
+                if (this.project.type == 'secure') {
+                    result = CryptoJS.AES.encrypt(result, this.project.secret);
+                }
+
+                this.fs.writeFile(this.project.pathFile, result, function (err) {});
             }
         }
     }
