@@ -166,6 +166,7 @@
         });
       },
       openDocument() {
+
         var localRouter = this.$router;
         var _project;
         var pass = this.securePass2;

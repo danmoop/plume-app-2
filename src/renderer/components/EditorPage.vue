@@ -1,10 +1,10 @@
 <template>
     <div>
-        <div class="flex mb-4">
-            <div class="w-1/6 sidebar" style="overflow-y: scroll;">
+        <div class="flex mb-4" v-if="!isEditorHidden">
+            <div class="w-1/6 sidebar" style="overflow-y: scroll; height: 99vh;">
                 <div class="mt-10">
                     <ul class="list-reset">
-                        <a href="#" @click="getInfo">Get info</a>
+                        <!-- <a href="#" @click="getInfo">Get info</a> -->
                         <a class="q list-title"><i class="fas fa-file-invoice"></i> Lists</a>
                         <a href="#" style="color: #111;" @click="addList" class="navBtn font-semibold">
                             <i class="fas fa-plus"></i>
@@ -63,6 +63,9 @@
             <div class="w-5/6" style="height: 95vh; overflow-y: scroll;">
                 <ul v-if="editorShown" class="list-reset flex justify-between" style="border: 2px solid #ecf0f1;">
                     <li class="mr-3">
+                        <button v-if="project.type == 'secure'" style="margin: 0px auto;" @click="hideEditor" class="q shadow-md appBtn bg-white text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded">
+                            <i class="fas fa-lg fa-lock"></i>
+                        </button>
                         <input @change="onNameChange($event)" v-if="!trashShown" class="border border-grey-light q ml-5"
                             placeholder="Username" :value="this.currentList.title">
                         <input @change="onNameChange($event)" v-if="trashShown" :disabled="trashShown" class="border border-grey-light q ml-5"
@@ -80,6 +83,15 @@
                 <h2 class="text-center" style="width: 90%;margin: 0px auto;margin-top: 25%;" v-if="!editorShown">Looks
                     like there is nothing here yet. Get started by creating / opening blank file on the left sidebar!</h2>
 
+                <div style="width: 50%; margin: 0px auto; margin-top: 150px;" v-if="!editorShown && project.type == 'secure'">
+                    <div class="flex items-center py-2">
+                        <button style="margin: 0px auto;" @click="hideEditor" class="q shadow-md appBtn bg-white text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded">
+                            <i class="fas fa-lg fa-lock"></i>
+                            <span class="text-black">Hide editor</span>
+                        </button>
+                    </div>
+                </div>
+
                 <quill-editor :disabled="disabled" v-if="editorShown" @ready="onEditorReady" :content="content"
                     :options="editorOptions" @change="onEditorChange($event)">
                 </quill-editor>
@@ -87,6 +99,22 @@
                 <br><br>
             </div>
         </div>
+
+        <transition enter-active-class="animated fadeIn">
+            <div v-if="isEditorHidden">
+                <h2 class="text-center q" style="width: 90%;margin: 0px auto;margin-top: 25%;">
+                    Editor is hidden. Enter your document's secure passcode to unlock
+                </h2>
+                <div style="width: 50%;margin: 0px auto; margin-top: 50px;">
+                    <input style="margin: 0px auto; width: 50%;border: 2px solid #e2e2e2;" v-model="securePass" class="appearance-none bg-transparent border-none text-grey-darker mr-3 py-1 px-2 leading-tight focus:outline-none"
+                        type="password" placeholder="Secure Password">
+                    <button @click="submitUnlock" style="margin: 0px auto; width: 30%;" class="q shadow-md appBtn bg-white text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded">
+                        <span class="text-black">Submit</span>
+                    </button>
+                </div>
+            </div>
+        </transition>
+
     </div>
 </template>
 
@@ -105,6 +133,8 @@
     import App from './../App';
     import CryptoJS from 'crypto-js';
     import draggable from 'vuedraggable';
+
+    const dialog = remote.require('electron').dialog;
 
     export default {
         name: 'EditorPage',
@@ -125,7 +155,9 @@
                 fs: null,
                 trashShown: false,
                 disabled: false,
-                quill: null
+                quill: null,
+                isEditorHidden: false,
+                securePass: ''
             }
         },
         mounted() {
@@ -133,7 +165,7 @@
             this.$root.$emit('setDocName', this.filename);
             this.fs = require('fs');
 
-            if(this.project.type == 'secure') 
+            if (this.project.type == 'secure')
                 this.$root.$emit('setSecure', true);
             else
                 this.$root.$emit('setSecure', false);
@@ -148,7 +180,6 @@
                 this.currentList = list;
                 this.trashShown = false;
                 this.disabled = false;
-
                 this.refreshWords();
             },
             onEditorReady(quill) {
@@ -290,7 +321,6 @@
             onDragUpdate() {
                 this.save();
             },
-
             save() {
 
                 var result = JSON.stringify(this.project, null, "\t");
@@ -300,6 +330,20 @@
                 }
 
                 this.fs.writeFile(this.project.pathFile, result, function (err) {});
+            },
+            hideEditor() {
+                this.isEditorHidden = true;
+            },
+            submitUnlock() {
+                if (this.securePass == this.project.secret) {
+                    this.isEditorHidden = false;
+                    this.securePass = '';
+                } else
+
+                    dialog.showMessageBox({
+                        message: "Password is invalid",
+                        buttons: ['OK']
+                    });
             }
         }
     }
