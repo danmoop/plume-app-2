@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <ul class="list-reset flex justify-between appNav">
+    <ul class="list-reset flex justify-between appNav" v-if="!exporting">
       <li class="mr-3">
         <button @click="goBack" v-if="editActive" class="navBtn text-center bg-white hover:bg-grey-lightest text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded shadow">
           <i class="fas fa-arrow-left"></i>
@@ -49,7 +49,8 @@
         wordsAmount: 0,
         symbolsAmount: 0,
         editActive: false,
-        isSecure: false
+        isSecure: false,
+        exporting: false
       }
     },
     methods: {
@@ -61,9 +62,6 @@
       },
       maximizeWindow() {
         remote.getCurrentWindow().maximize();
-      },
-      createBlank() {
-        alert(EditorPage);
       },
       goBack() {
         this.$router.push('landing-page');
@@ -84,11 +82,19 @@
       this.$root.$on('setSecure', (bool) => {
         this.isSecure = bool;
       });
+      this.$root.$on('export', () => {
+        this.exporting = true;
+      });
     }
   }
 </script>
 
 <style>
+
+  @page {
+    height: 100vh;
+  }
+
   @import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css');
   @import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro');
   @import url('https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css');

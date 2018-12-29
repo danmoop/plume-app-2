@@ -77,6 +77,10 @@
                     <li class="mr-3">
                     </li>
                     <li class="mr-3">
+                        <button @click="exportDocument" v-if="!trashShown" class="navBtn bg-grey-light text-grey-darkest font-bold py-2 px-4 rounded inline-flex items-center">
+                            <i class="fas fa-file-export"></i>
+                            <span class="text-black">Export</span>
+                        </button>
                     </li>
                 </ul>
 
@@ -344,6 +348,14 @@
                         message: "Password is invalid",
                         buttons: ['OK']
                     });
+            },
+            exportDocument() {
+                this.$router.push({
+                    name: 'PreviewBeforeSavePage',
+                    params: {
+                        project: this.project
+                    }
+                });
             }
         }
     }

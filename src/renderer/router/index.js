@@ -16,6 +16,11 @@ export default new Router({
       component: require('@/components/EditorPage').default
     },
     {
+      path: '/export',
+      name: 'PreviewBeforeSavePage',
+      component: require('@/components/PreviewBeforeSave').default
+    },
+    {
       path: '*',
       redirect: '/'
     }
