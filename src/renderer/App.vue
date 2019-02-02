@@ -6,7 +6,7 @@
           <i class="fas fa-arrow-left"></i>
         </button>
         <button v-if="editActive" class="text-grey-darkest font-bold py-2 px-4 rounded inline-flex items-center">
-          <i class="fas fa-lock" v-if="isSecure"></i>
+          <i class="fas fa-lock" v-if="isSecure"></i> 
           {{activeDocumentName}}
         </button>
       </li>

@@ -17,8 +17,7 @@ dmg:
       type: file
 mac:
   icon: build/icons/icon.icns
-win:
-  icon: build/icons/icon.ico
+win: {}
 linux:
   icon: build/icons
-electronVersion: 2.0.14
+electronVersion: 2.0.16

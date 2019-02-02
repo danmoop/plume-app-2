@@ -173,6 +173,8 @@
                 this.$root.$emit('setSecure', true);
             else
                 this.$root.$emit('setSecure', false);
+
+            console.log(this.project);
         },
         beforeMount() {
             this.project = this.$route.params.project;

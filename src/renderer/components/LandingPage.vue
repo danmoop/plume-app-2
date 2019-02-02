@@ -175,6 +175,7 @@
           fs.readFile(filename[0], function (err, data) {
             try {
               _project = JSON.parse(data);
+              _project.pathFile = filename[0];
               localRouter.push({
                 name: 'EditorPage',
                 params: {
@@ -184,6 +185,7 @@
             } catch (e) {
               try {
                 _project = JSON.parse(CryptoJS.AES.decrypt(data.toString(), pass).toString(CryptoJS.enc.Utf8));
+                _project.pathFile = filename[0];
                 localRouter.push({
                   name: 'EditorPage',
                   params: {
