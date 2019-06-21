@@ -1,6 +1,6 @@
 {
-  "name": "plume2",
-  "version": "0.1.0",
+  "name": "Plume",
+  "version": "2.0.0",
   "author": "dan_durnev (dandurnev1@gmail.com)",
   "description": "Document writing tool",
   "license": null,
@@ -18,7 +18,7 @@
     "postinstall": ""
   },
   "build": {
-    "productName": "plume2",
+    "productName": "Plume",
     "appId": "com.danmoop.plume2",
     "directories": {
       "output": "build"

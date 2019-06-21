@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="flex">
-      <div class="l-block w-3/4 text-center">
+      <div class="l-block w-3/4 text-center" style="background-image: linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)), url(/static/spring.png);">
         <p class="roboto-light">Plume 2</p>
         <div class="btns">
           <div class="px-4 m-10">
@@ -9,13 +9,13 @@
               <div class="w-1/2 px-2">
                 <button @click="createBlank('blank')" class="q shadow-md appBtn bg-white text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded">
                   <i class="fas fa-lg fa-file text-blue"></i>
-                  <span class="text-black">Create blank document</span>
+                  <span class="text-black">Create a blank document</span>
                 </button>
               </div>
               <div class="w-1/2 px-2">
                 <button @click="createBlank('book')" class="q shadow-md appBtn bg-white text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded">
                   <i class="fas fa-lg fa-book text-green"></i>
-                  <span class="text-black">Create book document</span>
+                  <span class="text-black">Create a book document</span>
                 </button>
               </div>
             </div>
@@ -30,19 +30,13 @@
                   <div class="flex items-center border-b border-b-2 border-teal py-2">
                     <input v-model="securePass" class="appearance-none bg-transparent border-none text-grey-darker mr-3 py-1 px-2 leading-tight focus:outline-none"
                       type="password" placeholder="Secure Password">
-                    <button @click="createBlank('secure')" class="q shadow-md appBtn bg-white text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded">
+                    <button @click="createBlank('secure')" class="q shadow-md appBtn bg-white text-red font-semibold py-2 px-4 border border-grey-light rounded">
                       <i class="fas fa-lg fa-lock"></i>
-                      <span class="text-black">Create secure document</span>
+                      <span class="text-black">Create a secure document</span>
                     </button>
                   </div>
                 </div>
               </div>
-              <!--<div class="w-1/2 px-2">
-                <button @click="createBlank('science')" class="q shadow-md appBtn bg-white text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded">
-                  <i class="fas fa-lg fa-atom text-red"></i>
-                  <span class="text-black">Create scientific document</span>
-                </button>
-              </div> -->
             </div>
           </div>
         </div>
@@ -56,7 +50,7 @@
                 <input v-model="securePass2" class="appearance-none bg-transparent border-none text-grey-darker mr-3 py-1 px-2 leading-tight focus:outline-none"
                   type="password" placeholder="Secure Password">
                 <button @click="openDocument" class="q shadow-md appBtn bg-white text-grey-darkest font-semibold py-2 px-4 border border-grey-light rounded">
-                  <i class="fas fa-lg fa-file text-indigo"></i>
+                  <i class="fas fa-lg fa-file icon-dark"></i>
                   <span class="text-black">Open document</span>
                 </button>
               </div>
@@ -215,5 +209,21 @@
 <style>
   body {
     overflow-y: hidden;
+  }
+
+  .icon-dark {
+    color: #2c3e50;
+  }
+
+  .text-green {
+    color: #27ae60;
+  }
+
+  .text-blue {
+    color: #2980b9;
+  }
+
+  .text-red {
+    color: #c0392b;
   }
 </style>

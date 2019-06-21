@@ -7,8 +7,14 @@
             <hr class="divider">
         </div>
         <li v-for="proj in projects" style="list-style: none;">
-            <button @click="openRecentProject(proj)" class="q btn m-2 bg-transparent text-blue-dark font-semibold py-2 px-4 border border-blue hover:border-transparent rounded">
+            <button v-if="proj.type != 'secure'" @click="openRecentProject(proj)" class="q btn m-2 bg-transparent text-blue-dark font-semibold py-2 px-4 border border-blue hover:border-transparent rounded">
+                <i v-if="proj.type == 'blank'" class="fas fa-lg fa-file icon-dark"></i>
+                <i v-if="proj.type == 'book'" class="fas fa-lg fa-file text-green"></i>
                 {{ proj.filename }}
+            </button>
+
+            <button v-if="proj.type == 'secure'" @click="() => displayMsg('Unable to open secret project from this menu! Use a password instead to access!')" class="q btn m-2 bg-transparent text-blue-dark font-semibold py-2 px-4 border border-blue hover:border-transparent rounded">
+                <i class="fas fa-lg fa-lock text-red"></i> {{ proj.filename }}
             </button>
         </li>
         <p v-if="projects.length == 0" class="m-5 font-bold">No recent projects</p>
@@ -16,6 +22,9 @@
 </template>
 
 <script>
+    
+    import fs from 'fs';
+
     export default {
         data() {
             return {
@@ -33,12 +42,24 @@
                 this.projects = [];
             },
             openRecentProject(proj) {
-                this.$router.push({
+        
+                var localRouter = this.$router;
+
+                fs.readFile(proj.pathFile, function(err, data) {
+                    var _project = JSON.parse(data);
+                    
+                    localRouter.push({
                     name: 'EditorPage',
                     params: {
-                        project: proj
+                        project: _project
                     }
-                })
+              })
+
+                });
+            },
+            displayMsg(msg)
+            {
+                alert(msg);
             }
         }
     }
