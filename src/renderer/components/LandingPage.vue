@@ -2,7 +2,7 @@
   <div>
     <div class="flex">
       <div class="l-block w-3/4 text-center" style="background-image: linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)), url(/static/spring.png);">
-        <p class="roboto-light">Plume 2</p>
+        <p class="roboto-light">Plume</p>
         <div class="btns">
           <div class="px-4 m-10">
             <div class="flex -mx-2">

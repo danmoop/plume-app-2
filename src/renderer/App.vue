@@ -6,7 +6,9 @@
           <i class="fas fa-arrow-left"></i>
         </button>
         <button v-if="editActive" class="font-bold py-2 px-4 rounded inline-flex items-center">
-          <i class="fas fa-lock text-red" v-if="isSecure"></i> 
+          <i class="fas fa-lock text-red" v-if="projectType == 'secure'"></i>
+          <i class="fas fa-file text-blue" v-if="projectType == 'blank'"></i>
+          <i class="fas fa-book text-green" v-if="projectType == 'book'"></i>
           {{activeDocumentName}}
         </button>
       </li>
@@ -49,7 +51,7 @@
         wordsAmount: 0,
         symbolsAmount: 0,
         editActive: false,
-        isSecure: false,
+        projectType: '',
         exporting: false
       }
     },
@@ -79,11 +81,14 @@
         this.symbolsAmount = symNum;
         this.wordsAmount = wordNum;
       });
-      this.$root.$on('setSecure', (bool) => {
-        this.isSecure = bool;
+      this.$root.$on('setProjectType', (type) => {
+        this.projectType = type;
       });
       this.$root.$on('export', () => {
         this.exporting = true;
+      });
+      this.$root.$on('exportFinished', () => {
+        this.exporting = false;
       });
     }
   }

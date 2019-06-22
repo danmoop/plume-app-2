@@ -8,8 +8,8 @@
         </div>
         <li v-for="proj in projects" style="list-style: none;">
             <button v-if="proj.type != 'secure'" @click="openRecentProject(proj)" class="q btn m-2 bg-transparent text-blue-dark font-semibold py-2 px-4 border border-blue hover:border-transparent rounded">
-                <i v-if="proj.type == 'blank'" class="fas fa-lg fa-file icon-dark"></i>
-                <i v-if="proj.type == 'book'" class="fas fa-lg fa-file text-green"></i>
+                <i v-if="proj.type == 'blank'" class="fas fa-lg fa-file text-blue"></i>
+                <i v-if="proj.type == 'book'" class="fas fa-lg fa-book text-green"></i>
                 {{ proj.filename }}
             </button>
 

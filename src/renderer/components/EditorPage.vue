@@ -78,7 +78,7 @@
                     </li>
                     <li class="mr-3">
                         <button @click="exportDocument" v-if="!trashShown" class="navBtn bg-grey-light text-grey-darkest font-bold py-2 px-4 rounded inline-flex items-center">
-                            <i class="fas fa-file-export"></i>
+                            <i class="fas fa-file-export" style="color: #26262b;"></i>
                             <span class="text-black">Export</span>
                         </button>
                     </li>
@@ -169,10 +169,7 @@
             this.$root.$emit('setDocName', this.filename);
             this.fs = require('fs');
 
-            if (this.project.type == 'secure')
-                this.$root.$emit('setSecure', true);
-            else
-                this.$root.$emit('setSecure', false);
+            this.$root.$emit('setProjectType', this.project.type);
 
             console.log(this.project);
         },
